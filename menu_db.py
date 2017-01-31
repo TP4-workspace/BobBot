@@ -15,7 +15,7 @@ cookies = {'user_id' : 'jHuYo3gvgvj7sY1KNasAVQ=='}
 def crawl_week_menu():
 	res = requests.get(url,cookies=cookies)
 	plain_text = res.text
-	soup = BeautifulSoup(plain_text)
+	soup = BeautifulSoup(plain_text, "html.parser")
 	
 	flickingwrap = soup.find('div', {'id':'flickingWrap'})
 	menu = soup.find('div', {'id':'menu2_c'})
@@ -45,18 +45,18 @@ def crawl_week_menu():
 			day_i = 3
 		elif eq(wday_text.encode('utf-8'), '금') : 
 			day_i = 4
-			
+		
 		menu_i = 0
 		for menu in bob:
 			menu_string = ""
 			tmp = bob[menu_i].parent.text
 			menu_string += '* '
 			menu_string += re.sub(r"[\t\n]", "", tmp)
-			menu_string = menu_string.encode('utf-8')
-			
-			if menu_i < 3 :
+			menu_string = " ".join(menu_string.split()).encode('utf-8')
+
+			if eq(bob[menu_i].parent.parent.find('th', {'scope' : 'row'}).text.encode('utf-8'),'아침') :
 				query = "'" + day_list[day_i] + "', 'b', '" + menu_string + "'"
-			elif menu_i < 6 :
+			elif eq(bob[menu_i].parent.parent.find('th', {'scope' : 'row'}).text.encode('utf-8'),'점심') :
 				query = "'" + day_list[day_i] + "', 'l', '" + menu_string + "'"
 			else :
 				query = "'" + day_list[day_i] + "', 'd', '" + menu_string + "'"
@@ -83,5 +83,6 @@ def get_bob(day, time):
 			result_string += row[0]
 			result_string += '\n'
 	con.close()
+
 	return result_string
 	
